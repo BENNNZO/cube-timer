@@ -3,17 +3,16 @@
 import { useState, useEffect } from "react"
 
 const EMPTY_STATE = "--:--.---"
+type Mode = "clear" | "timing" | "stopped"
 
 export default function Home() {
     const [startTime, setStartTime] = useState<number | null>(null)
     const [elapsedTime, setElapsedTime] = useState<number>(0)
-    const [displayTime, setDisplayTime] = useState<string>(EMPTY_STATE)
-    const [mode, setMode] = useState<string>("clear")
+    const [mode, setMode] = useState<Mode>("clear")
 
     const reset = () => {
         setStartTime(null)
         setElapsedTime(0)
-        setDisplayTime(EMPTY_STATE)
         setMode("clear")
     }
 
@@ -23,7 +22,9 @@ export default function Home() {
     }
 
     const stopTimer = () => {
+        if (startTime !== null) setElapsedTime(Date.now() - startTime)
         setStartTime(null)
+        setMode("stopped")
     }
 
     const getFormattedTime = (time: number) => {
@@ -37,19 +38,15 @@ export default function Home() {
 
     useEffect(() => {
         const keydownHandler = (e: KeyboardEvent) => {
-            if (e.repeat) return
+            if (e.repeat || e.code !== "Space") return
 
-            if (e.code === "Space") {
-                if (mode === "timing" && startTime !== null) stopTimer()
-                else reset()
-            }
+            if (mode === "timing") stopTimer()
+            else if (mode === "stopped") reset()
         }
 
         const keyupHandler = (e: KeyboardEvent) => {
             if (e.code === "Space" && mode === 'clear') startTimer()
         }
-
-        if (startTime !== null) setDisplayTime(getFormattedTime(elapsedTime))
 
         window.addEventListener("keydown", keydownHandler)
         window.addEventListener("keyup", keyupHandler)
@@ -58,15 +55,17 @@ export default function Home() {
             window.removeEventListener("keydown", keydownHandler)
             window.removeEventListener("keyup", keyupHandler)
         }
-    }, [startTime, elapsedTime])
+    }, [startTime, elapsedTime, mode])
 
     useEffect(() => {
         if (startTime === null) return
 
-        const handleInterval = setInterval(() => setElapsedTime(Date.now() - startTime), 0)
+        const handleInterval = setInterval(() => setElapsedTime(Date.now() - startTime), 10)
 
         return () => clearInterval(handleInterval)
     }, [startTime])
+
+    const displayTime = mode === "clear" ? EMPTY_STATE : getFormattedTime(elapsedTime)
 
     return (
         <div className="w-screen h-screen grid place-items-center font-mono text-4xl">
