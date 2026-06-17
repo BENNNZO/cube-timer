@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useEffect, useState } from "react"
 
 const EMPTY_STATE = "--:--.---"
 type Mode = "clear" | "timing" | "stopped"
@@ -29,9 +29,9 @@ export default function Home() {
 
     const getFormattedTime = (time: number) => {
         const dateObject = new Date(time)
-        const minutes = dateObject.getMinutes().toLocaleString('en-US', { minimumIntegerDigits: 2 })
-        const seconds = dateObject.getSeconds().toLocaleString('en-US', { minimumIntegerDigits: 2 })
-        const milliseconds = dateObject.getMilliseconds().toLocaleString('en-US', { minimumIntegerDigits: 3 })
+        const minutes = dateObject.getMinutes().toLocaleString("en-US", { minimumIntegerDigits: 2 })
+        const seconds = dateObject.getSeconds().toLocaleString("en-US", { minimumIntegerDigits: 2 })
+        const milliseconds = dateObject.getMilliseconds().toLocaleString("en-US", { minimumIntegerDigits: 3 })
 
         return `${minutes}:${seconds}.${milliseconds}`
     }
@@ -45,7 +45,7 @@ export default function Home() {
         }
 
         const keyupHandler = (e: KeyboardEvent) => {
-            if (e.code === "Space" && mode === 'clear') startTimer()
+            if (e.code === "Space" && mode === "clear") startTimer()
         }
 
         window.addEventListener("keydown", keydownHandler)
@@ -55,7 +55,7 @@ export default function Home() {
             window.removeEventListener("keydown", keydownHandler)
             window.removeEventListener("keyup", keyupHandler)
         }
-    }, [startTime, elapsedTime, mode])
+    }, [mode, stopTimer, startTimer, reset])
 
     useEffect(() => {
         if (startTime === null) return
@@ -68,7 +68,7 @@ export default function Home() {
     const displayTime = mode === "clear" ? EMPTY_STATE : getFormattedTime(elapsedTime)
 
     return (
-        <div className="w-screen h-screen grid place-items-center font-mono text-4xl">
+        <div className="grid h-screen w-screen place-items-center font-mono text-4xl">
             <p>{displayTime}</p>
         </div>
     )
